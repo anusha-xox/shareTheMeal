@@ -33,7 +33,7 @@ bootstrap = Bootstrap(app)
 # def load_user(user_id):
 #     return User.query.get(int(user_id))
 @app.route('/')
-def home():
+def home(/home):
     return render_template("about.html")
 
 
