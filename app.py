@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, send_file
+from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, send_file, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 import datetime
@@ -32,12 +32,12 @@ bootstrap = Bootstrap(app)
 # @login_manager.user_loader
 # def load_user(user_id):
 #     return User.query.get(int(user_id))
-# @app.route('/')
-# def home():
-#     return render_template("about.html")
+@app.route('/')
+def home():
+    return render_template("about.html")
 
 # @app.route("/home")
-# def home():
+# def ():
 #     return render_template("home.html")
 
 class NGOForm(FlaskForm):
@@ -86,6 +86,33 @@ def ngo_profile():
     }
 
     return render_template('ngo_profile.html', ngo_data=ngo_data)
+
+@app.route('/restaurant_form', methods=['GET', 'POST'])
+def restaurant_form():
+    if request.method == 'POST':
+        # Retrieve form data
+        restaurant_name = request.form['restaurant_name']
+        location = request.form['location']
+        food_type = request.form['food_type']
+        
+        # Store the data in session for later retrieval
+        session['restaurant_name'] = restaurant_name
+        session['location'] = location
+        session['food_type'] = food_type
+        
+        return redirect(url_for('restaurant_profile'))
+    
+    return render_template('restaurant_form.html')
+
+
+@app.route('/profile')
+def restaurant_profile():
+    restaurant_name = session.get('restaurant_name')
+    location = session.get('location')
+    food_type = session.get('food_type')
+    
+    return render_template('restaurant_profile.html', restaurant_name=restaurant_name, location=location, food_type=food_type)
+
 
 
 

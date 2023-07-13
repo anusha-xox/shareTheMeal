@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='restaurant_styles.css') }}">
+
+    <title>Restaurant Profile</title>
+    <style>
+        /* Add your CSS styling here */
+    </style>
+</head>
+<body>
+    <h1>Restaurant Profile</h1>
+    <p><strong>Restaurant Name:</strong> {{ restaurant_name }}</p>
+    <p><strong>Location:</strong> {{ location }}</p>
+    <p><strong>Food Type:</strong> {{ food_type }}</p>
+</body>
+</html>
