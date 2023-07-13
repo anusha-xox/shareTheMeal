@@ -9,6 +9,19 @@ from wtforms.validators import ValidationError
 from flask_ckeditor import CKEditor, CKEditorField
 
 
+class LoginForm(FlaskForm):
+    email = StringField(label='Email', validators=[DataRequired(), Email()])
+    password = PasswordField(label='Password', validators=[DataRequired()])
+    submit = SubmitField(label='Login')
+
+
+class RegisterForm(FlaskForm):
+    username = StringField(label='Username', validators=[DataRequired()])
+    email = StringField(label='Email', validators=[DataRequired(), Email()])
+    password = PasswordField(label='Password', validators=[DataRequired()])
+    submit = SubmitField(label='Register')
+
+
 class NGOForm(FlaskForm):
     picture = FileField('Picture')
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
