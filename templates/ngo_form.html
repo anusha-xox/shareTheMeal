@@ -1,10 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>NGO Form</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styled.css') }}">
-</head>
-<body>
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <title>NGO Form</title>-->
+<!--    <link rel="stylesheet" href="{{ url_for('static', filename='styled.css') }}">-->
+<!--</head>-->
+<!--<body>-->
+{% import 'bootstrap/wtf.html' as wtf %}
+{% include "header.html" %}
     <h1>NGO Form</h1>
     <form method="POST" action="/" enctype="multipart/form-data">
         {{ form.csrf_token }}
@@ -33,5 +35,6 @@
             {{ form.submit() }}
         </div>
     </form>
-</body>
-</html>
+<!--</body>-->
+<!--</html>-->
+{% include "footer.html" %}

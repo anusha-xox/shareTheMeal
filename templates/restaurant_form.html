@@ -1,14 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='restaurant_styles.css') }}">
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <link rel="stylesheet" href="{{ url_for('static', filename='restaurant_styles.css') }}">-->
 
-    <title>Restaurant Form</title>
-    <style>
-        /* Add your CSS styling here */
-    </style>
-</head>
-<body>
+<!--    <title>Restaurant Form</title>-->
+<!--    <style>-->
+<!--        /* Add your CSS styling here */-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+{% import 'bootstrap/wtf.html' as wtf %}
+{% include "header.html" %}
+
+<div id="fh5co-contact">
+		<div class="container">
+			<div class="row animate-box">
+				<div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
     <h1>Restaurant Details Form</h1>
     <form method="POST" action="{{ url_for('restaurant_form') }}">
         <label for="restaurant_name">Restaurant Name:</label>
@@ -23,7 +30,8 @@
             <option value="non_veg">Non-Vegetarian</option>
         </select><br><br>
         
-        <input type="submit" value="Submit">
+        <input type="submit" value="Submit" class="btn btn-primary">
     </form>
-</body>
-</html>
+{% include "footer.html" %}
+<!--</body>-->
+<!--</html>-->
