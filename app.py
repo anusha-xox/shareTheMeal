@@ -11,6 +11,7 @@ import email_validator
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from flask_ckeditor import CKEditor, CKEditorField
+from form_data import *
 
 app = Flask(__name__, static_folder='static')
 
@@ -36,19 +37,6 @@ bootstrap = Bootstrap(app)
 def home():
     return render_template("about.html")
 
-# @app.route("/home")
-# def ():
-#     return render_template("home.html")
-
-class NGOForm(FlaskForm):
-    picture = FileField('Picture')
-    name = StringField('Name', validators=[DataRequired(), Length(max=100)])
-    location = StringField('Location', validators=[DataRequired(), Length(max=100)])
-    full_address = TextAreaField('Full Address', validators=[DataRequired()])
-    contact_details = StringField('Contact Details', validators=[DataRequired()])
-    capacity = IntegerField('Capacity', validators=[DataRequired()])
-    age = IntegerField('Age', validators=[DataRequired()])
-    submit = SubmitField('Submit')
 
 @app.route('/login', methods=['GET', 'POST'])
 def ngo_form():
@@ -73,6 +61,7 @@ def ngo_form():
 
     return render_template('ngo_form.html', form=form)
 
+
 @app.route('/', methods=['GET', 'POST'])
 def ngo_profile():
     ngo_data = {
@@ -87,6 +76,7 @@ def ngo_profile():
 
     return render_template('ngo_profile.html', ngo_data=ngo_data)
 
+
 @app.route('/restaurant_form', methods=['GET', 'POST'])
 def restaurant_form():
     if request.method == 'POST':
@@ -94,14 +84,14 @@ def restaurant_form():
         restaurant_name = request.form['restaurant_name']
         location = request.form['location']
         food_type = request.form['food_type']
-        
+
         # Store the data in session for later retrieval
         session['restaurant_name'] = restaurant_name
         session['location'] = location
         session['food_type'] = food_type
-        
+
         return redirect(url_for('restaurant_profile'))
-    
+
     return render_template('restaurant_form.html')
 
 
@@ -110,10 +100,9 @@ def restaurant_profile():
     restaurant_name = session.get('restaurant_name')
     location = session.get('location')
     food_type = session.get('food_type')
-    
-    return render_template('restaurant_profile.html', restaurant_name=restaurant_name, location=location, food_type=food_type)
 
-
+    return render_template('restaurant_profile.html', restaurant_name=restaurant_name, location=location,
+                           food_type=food_type)
 
 
 if __name__ == '__main__':
