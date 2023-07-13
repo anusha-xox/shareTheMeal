@@ -1,0 +1,77 @@
+/* static/style.css */
+
+/* NGO Form styles */
+body {
+    background-image: url('ngo-bgimg.jpg');
+    background-size: cover;
+    backdrop-filter: blur(5px);
+}
+
+form {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    opacity: 0; /* Set initial opacity to 0 */
+    animation: fade-in 1s forwards; /* Apply fade-in animation */
+}
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+        transform: translateY(20px); /* Optional: Add vertical translation */
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0); /* Optional: Add vertical translation */
+    }
+}
+
+input[type="text"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    transition: all 0.3s; /* Apply transition effect */
+}
+
+input[type="text"]:focus,
+textarea:focus {
+    border-color: #4CAF50; /* Change border color on focus */
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); /* Add box shadow on focus */
+}
+
+input[type="file"] {
+    margin-top: 10px;
+}
+
+input[type="submit"] {
+    display: block;
+    width: 50%;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s; /* Apply transition effect */
+}
+
+input[type="submit"]:hover {
+    background-color: #45a049; /* Change background color on hover */
+}
+
+/* NGO Profile styles */
+.profile-container {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}

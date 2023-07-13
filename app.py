@@ -3,8 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField
-from wtforms.validators import DataRequired, URL, Email
+from wtforms import StringField, FileField, IntegerField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired, URL, Email, Length
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 import email_validator
@@ -12,7 +12,7 @@ from flask_bootstrap import Bootstrap
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from flask_ckeditor import CKEditor, CKEditorField
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 app.config['SECRET_KEY'] = 'any-secret-key-you-choose'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///iseResearch.db'
@@ -32,10 +32,62 @@ bootstrap = Bootstrap(app)
 # @login_manager.user_loader
 # def load_user(user_id):
 #     return User.query.get(int(user_id))
-@app.route('/')
-def home(/home):
-    return render_template("about.html")
+# @app.route('/')
+# def home():
+#     return render_template("about.html")
+
+# @app.route("/home")
+# def home():
+#     return render_template("home.html")
+
+class NGOForm(FlaskForm):
+    picture = FileField('Picture')
+    name = StringField('Name', validators=[DataRequired(), Length(max=100)])
+    location = StringField('Location', validators=[DataRequired(), Length(max=100)])
+    full_address = TextAreaField('Full Address', validators=[DataRequired()])
+    contact_details = StringField('Contact Details', validators=[DataRequired()])
+    capacity = IntegerField('Capacity', validators=[DataRequired()])
+    age = IntegerField('Age', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+@app.route('/login', methods=['GET', 'POST'])
+def ngo_form():
+    form = NGOForm()
+
+    if form.validate_on_submit():
+        # Save the form data to the database or any other storage mechanism
+        # You can access the form data using form.field_name.data
+        # For simplicity, we'll just store the data in a dictionary here
+        ngo_data = {
+            'picture': form.picture.data,
+            'name': form.name.data,
+            'location': form.location.data,
+            'full_address': form.full_address.data,
+            'contact_details': form.contact_details.data,
+            'capacity': form.capacity.data,
+            'age': form.age.data
+        }
+
+        # Redirect to the profile page, passing the NGO data as a query parameter
+        return redirect(url_for('ngo_profile', **ngo_data))
+
+    return render_template('ngo_form.html', form=form)
+
+@app.route('/', methods=['GET', 'POST'])
+def ngo_profile():
+    ngo_data = {
+        'picture': request.args.get('picture'),
+        'name': request.args.get('name'),
+        'location': request.args.get('location'),
+        'full_address': request.args.get('full_address'),
+        'contact_details': request.args.get('contact_details'),
+        'capacity': request.args.get('capacity'),
+        'age': request.args.get('age')
+    }
+
+    return render_template('ngo_profile.html', ngo_data=ngo_data)
+
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

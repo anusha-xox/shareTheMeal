@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NGO Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styled.css') }}">
+</head>
+<body>
+    <div class="profile-container">
+        <h1>NGO Profile</h1>
+        <div class="profile-picture">
+            {% if ngo_data.picture %}
+            <img src="{{ url_for('static', filename='pictures/' + ngo_data.picture) }}" alt="NGO Picture">
+            {% endif %}
+        </div>
+        <h2>Name: {{ ngo_data.name }}</h2>
+        <p>Location: {{ ngo_data.location }}</p>
+        <p>Full Address: {{ ngo_data.full_address }}</p>
+        <p>Contact Details: {{ ngo_data.contact_details }}</p>
+        <p>Capacity: {{ ngo_data.capacity }}</p>
+        <p>Age: {{ ngo_data.age }}</p>
+    </div>
+</body>
+</html>
