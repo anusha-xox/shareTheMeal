@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+
+    <title>Create Request</title>
+</head>
+<body>
+    <h1>Create Request</h1>
+    <form method="POST" action="/create_request">
+        <label for="people_to_feed">Number of People to Feed:</label>
+        <input type="text" id="people_to_feed" name="people_to_feed"><br>
+
+        <label for="date">Date:</label>
+        <input type="text" id="date" name="date"><br>
+
+        <label for="food_type">Food Type:</label>
+        <select id="food_type" name="food_type">
+            <option value="veg">Veg</option>
+            <option value="nonveg">Non-Veg</option>
+            <option value="any">Any</option>
+        </select><br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

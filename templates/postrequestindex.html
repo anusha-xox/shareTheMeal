@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+
+    <title>Food Requests</title>
+</head>
+<body>
+    <h1>Food Requests</h1>
+    <ul>
+        {% for request in requests %}
+        <li>
+            <strong>Number of People to Feed:</strong> {{ request.people_to_feed }}<br>
+            <strong>Date:</strong> {{ request.date }}<br>
+            <strong>Food Type:</strong> {{ request.food_type }}<br>
+            {% if request.restaurant %}
+                <strong>Requirement Satisfied</strong>
+            {% else %}
+                {% if request in ngo_offers %}
+                    <strong>Offers from Restaurants:</strong>
+                    <ul>
+                        {% for offer in ngo_offers[request] %}
+                            <li>{{ offer.name }} <a href="/choose_restaurant/{{ request.id }}/{{ offer.id }}">Choose</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <a href="/offer_help/{{ request.id }}">I Can Provide</a>
+                {% endif %}
+            {% endif %}
+        </li>
+        <br>
+        {% endfor %}
+    </ul>
+</body>
+</html>

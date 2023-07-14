@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, url_for, redirect, flash, sen
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 import datetime
+import os
 from flask_wtf import FlaskForm
 from wtforms import StringField, FileField, IntegerField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, URL, Email, Length
@@ -16,7 +17,8 @@ from form_data import *
 app = Flask(__name__, static_folder='static')
 
 app.config['SECRET_KEY'] = 'any-secret-key-you-choose'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///iseResearch.db'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/shareTheMeal.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.root_path, 'instance', 'shareTheMeal.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['CKEDITOR_PKG_TYPE'] = 'full-all'
@@ -38,7 +40,7 @@ def home():
     return render_template("about.html")
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/ngo_form', methods=['GET', 'POST'])
 def ngo_form():
     form = NGOForm()
 
@@ -104,6 +106,69 @@ def restaurant_profile():
     return render_template('restaurant_profile.html', restaurant_name=restaurant_name, location=location,
                            food_type=food_type)
 
+
+@app.route('/postrequestindex')
+def postrequestindex():
+    requests = FoodRequest.query.filter_by(restaurant_id=None).all()
+    restaurants = Restaurant.query.all()
+    ngo_offers = {}
+    for request in requests:
+        ngo_offers[request] = Restaurant.query.filter(Restaurant.offers.any(id=request.id)).all()
+    return render_template('postrequestindex.html', requests=requests, ngo_offers=ngo_offers, restaurants=restaurants)
+
+
+@app.route('/create_request', methods=['GET', 'POST'])
+def create_request():
+    if request.method == 'POST':
+        people_to_feed = request.form['people_to_feed']
+        date = request.form['date']
+        food_type = request.form['food_type']
+
+        new_request = FoodRequest(people_to_feed=people_to_feed, date=date, food_type=food_type)
+        db.session.add(new_request)
+        db.session.commit()
+
+        return redirect(url_for('home'))
+    
+    return render_template('create_request.html')
+
+@app.route('/offer_help/<int:request_id>')
+def offer_help(request_id):
+    request = FoodRequest.query.get(request_id)
+    request.restaurant_id = 1  # Assuming the restaurant ID is 1 for demonstration purposes
+    db.session.commit()
+
+    return redirect(url_for('home'))
+
+@app.route('/choose_restaurant/<int:request_id>/<int:restaurant_id>')
+def choose_restaurant(request_id, restaurant_id):
+    request = FoodRequest.query.get(request_id)
+    request.restaurant_id = restaurant_id
+    db.session.commit()
+
+    return redirect(url_for('home'))
+
+
+class NGO(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+
+class Restaurant(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+
+class FoodRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    people_to_feed = db.Column(db.Integer)
+    date = db.Column(db.String(20))
+    food_type = db.Column(db.String(10))
+    ngo_id = db.Column(db.Integer, db.ForeignKey('ngo.id'))
+    ngo = db.relationship('NGO', backref=db.backref('requests', lazy=True))
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    restaurant = db.relationship('Restaurant', backref=db.backref('offers', lazy=True))
+
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)
