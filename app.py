@@ -28,13 +28,26 @@ db = SQLAlchemy(app)
 
 bootstrap = Bootstrap(app)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
 
-# login_manager = LoginManager()
-# login_manager.init_app(app)
-#
-# @login_manager.user_loader
-# def load_user(user_id):
-#     return User.query.get(int(user_id))
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(1000))
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+with app.app_context():
+    db.create_all()
+
+
 @app.route('/')
 def home():
     return render_template("about.html")
