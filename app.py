@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 import os
 from flask_wtf import FlaskForm
-from wtforms import StringField, FileField, IntegerField, TextAreaField, SubmitField
+from wtforms import StringField, FileField, IntegerField, TextAreaField, SubmitField, PasswordField, SelectField
 from wtforms.validators import DataRequired, URL, Email, Length
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
@@ -13,6 +13,7 @@ from flask_bootstrap import Bootstrap
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from flask_ckeditor import CKEditor, CKEditorField
 from form_data import *
+from werkzeug.security import check_password_hash
 
 app = Flask(__name__, static_folder='static')
 
@@ -161,6 +162,62 @@ def choose_restaurant(request_id, restaurant_id):
 
     return redirect(url_for('home'))
 
+@app.route('/login')
+def loginnew():
+    return render_template('login_register.html', title='Login')
+
+@app.route('/loginpage', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
+        user_type = form.user_type.data
+
+        if user_type == 'ngo':
+            user = NGOregistration.query.filter_by(email=email).first()
+        elif user_type == 'restaurant':
+            user = Restaurantregistration.query.filter_by(email=email).first()
+
+        if user and check_password_hash(user.password, password):
+            # User is authenticated, perform login
+            return 'Login Successful'
+
+        # Invalid credentials
+        return 'Invalid email or password'
+
+    return render_template('loginpage.html', form=form)
+
+
+
+
+@app.route('/registerpage', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        phone_number = form.phone_number.data
+        city = form.city.data
+        district = form.district.data
+        email = form.email.data
+        password = form.password.data
+        user_type = form.user_type.data
+
+        if user_type == 'ngo':
+            ngo = NGOregistration(name=name, phone_number=phone_number, city=city, district=district, email=email,
+                                  password=password)
+            db.session.add(ngo)
+            db.session.commit()
+        elif user_type == 'restaurant':
+            restaurant = Restaurantregistration(name=name, phone_number=phone_number, city=city, district=district,
+                                                email=email, password=password)
+            db.session.add(restaurant)
+            db.session.commit()
+
+        return 'Registration Successful'
+
+    return render_template('registerpage.html', form=form)
+
 
 class NGO(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -179,6 +236,42 @@ class FoodRequest(db.Model):
     ngo = db.relationship('NGO', backref=db.backref('requests', lazy=True))
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     restaurant = db.relationship('Restaurant', backref=db.backref('offers', lazy=True))
+
+class NGOregistration(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    phone_number = db.Column(db.String(20), nullable=False)
+    city = db.Column(db.String(50), nullable=False)
+    district = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+
+class Restaurantregistration(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    phone_number = db.Column(db.String(20), nullable=False)
+    city = db.Column(db.String(50), nullable=False)
+    district = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+
+
+class RegistrationForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    phone_number = StringField('Phone Number', validators=[DataRequired()])
+    city = StringField('City', validators=[DataRequired()])
+    district = StringField('District', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    user_type = SelectField('User Type', choices=[('ngo', 'NGO'), ('restaurant', 'Restaurant')])
+
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    user_type = SelectField('User Type', choices=[('ngo', 'NGO'), ('restaurant', 'Restaurant')])
+
+
+
 
 with app.app_context():
     db.create_all()

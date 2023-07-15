@@ -1,40 +1,36 @@
-<!--<!DOCTYPE html>-->
-<!--<html>-->
-<!--<head>-->
-<!--    <title>NGO Form</title>-->
-<!--    <link rel="stylesheet" href="{{ url_for('static', filename='styled.css') }}">-->
-<!--</head>-->
-<!--<body>-->
 {% import 'bootstrap/wtf.html' as wtf %}
-{% include "header.html" %}
-    <h1>NGO Form</h1>
-    <form method="POST" action="/" enctype="multipart/form-data">
-        {{ form.csrf_token }}
-        <div>
-            {{ form.picture.label }} {{ form.picture }}
-        </div>
-        <div>
-            {{ form.name.label }} {{ form.name }}
-        </div>
-        <div>
-            {{ form.location.label }} {{ form.location }}
-        </div>
-        <div>
-            {{ form.full_address.label }} {{ form.full_address }}
-        </div>
-        <div>
-            {{ form.contact_details.label }} {{ form.contact_details }}
-        </div>
-        <div>
-            {{ form.capacity.label }} {{ form.capacity }}
-        </div>
-        <div>
-            {{ form.age.label }} {{ form.age }}
-        </div>
-        <div>
-            {{ form.submit() }}
-        </div>
-    </form>
-<!--</body>-->
-<!--</html>-->
+    {% include "header.html" %}
+<div class="container">
+  <h1>NGO Details</h1>
+  <form method="POST" action="/" enctype="multipart/form-data">
+    {{ form.csrf_token }}
+    <div class="form-group">
+      {{ form.picture.label }} {{ form.picture }}
+    </div>
+    <div class="form-group">
+      {{ form.name.label }} {{ form.name }}
+    </div>
+    <div class="form-group">
+      {{ form.location.label }} {{ form.location }}
+    </div>
+    <div class="form-group">
+      {{ form.full_address.label }} {{ form.full_address }}
+    </div>
+    <div class="form-group">
+      {{ form.contact_details.label }} {{ form.contact_details }}
+    </div>
+    <div class="form-group">
+      {{ form.capacity.label }} {{ form.capacity }}
+    </div>
+    <div class="form-group">
+      {{ form.age.label }} {{ form.age }}
+    </div>
+    <div class="form-group">
+      {{ form.submit() }}
+    </div>
+  </form>
+</div>
+
 {% include "footer.html" %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='styled.css') }}">

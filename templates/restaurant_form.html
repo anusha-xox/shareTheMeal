@@ -1,27 +1,31 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 {% include "header.html" %}
 
-<div id="fh5co-contact">
-		<div class="container">
-			<div class="row animate-box">
-				<div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
-    <h1>Restaurant Details Form</h1>
-    <form method="POST" action="{{ url_for('restaurant_form') }}">
-        <label for="restaurant_name">Restaurant Name:</label>
-        <input type="text" id="restaurant_name" name="restaurant_name" required><br><br>
-        
-        <label for="location">Location:</label>
-        <input type="text" id="location" name="location" required><br><br>
-        
-        <label for="food_type">Food Type:</label>
-        <select id="food_type" name="food_type" required>
-            <option value="veg">Vegetarian</option>
-            <option value="non_veg">Non-Vegetarian</option>
-            <option value="both">Both</option>
-        </select><br><br>
-        
-        <input type="submit" value="Submit" class="btn btn-primary">
-    </form>
+<div class="container">
+    <div id="fh5co-contact" class="row animate-box">
+        <div class="col-md-8 col-md-offset-2 text-left fh5co-heading">
+            <h1>Restaurant Details Form</h1>
+            <form method="POST" action="{{ url_for('restaurant_form') }}">
+                <div class="form-group">
+                    <label for="restaurant_name">Restaurant Name:</label>
+                    <input type="text" id="restaurant_name" name="restaurant_name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" name="location" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="food_type">Food Type:</label>
+                    <select id="food_type" name="food_type" class="form-control" required>
+                        <option value="veg">Vegetarian</option>
+                        <option value="non_veg">Non-Vegetarian</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <input type="submit" value="Submit" class="btn btn-primary">
+            </form>
+        </div>
+    </div>
+</div>
+
 {% include "footer.html" %}
-<!--</body>-->
-<!--</html>-->
