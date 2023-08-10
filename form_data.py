@@ -4,17 +4,22 @@ from wtforms.validators import DataRequired, Email, Length, URL
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 
-class LoginForm(FlaskForm):
-    email = StringField(label='Email', validators=[DataRequired(), Email()])
-    password = PasswordField(label='Password', validators=[DataRequired()])
-    submit = SubmitField(label='Login')
-
-
-class RegisterForm(FlaskForm):
-    username = StringField(label='Username', validators=[DataRequired()])
-    email = StringField(label='Email', validators=[DataRequired(), Email()])
-    password = PasswordField(label='Password', validators=[DataRequired()])
+class RegistrationForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    phone_number = StringField('Phone Number', validators=[DataRequired()])
+    city = StringField('City', validators=[DataRequired()])
+    district = StringField('District', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    user_type = SelectField('User Type', choices=[('ngo', 'NGO'), ('restaurant', 'Restaurant')])
     submit = SubmitField(label='Register')
+
+
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    user_type = SelectField('User Type', choices=[('ngo', 'NGO'), ('restaurant', 'Restaurant')])
+    submit = SubmitField(label='Login')
 
 
 class NGOForm(FlaskForm):
@@ -24,5 +29,5 @@ class NGOForm(FlaskForm):
     full_address = TextAreaField('Full Address', validators=[DataRequired()])
     contact_details = StringField('Contact Details', validators=[DataRequired()])
     capacity = IntegerField('Capacity', validators=[DataRequired()])
-    age = IntegerField('Age', validators=[DataRequired()])
+    est_year = IntegerField('Year of Est.', validators=[DataRequired()])
     submit = SubmitField('Submit')
