@@ -63,7 +63,6 @@ class FoodReqTab(db.Model):
     no_of_people = db.Column(db.String(1000))
     delivery_date = db.Column(db.String(100))
     food_type = db.Column(db.String(100))
-    ngo_id = db.Column(db.String(100))
     restaurant_id = db.Column(db.String(100))
 
 
