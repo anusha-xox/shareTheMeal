@@ -1,0 +1,23 @@
+{% import 'bootstrap/wtf.html' as wtf %}
+{% include "header.html" %}
+
+    <div class="logincontainer">
+        <h1>Login</h1>
+        <form method="POST" action="{{ url_for('login') }}">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                {{ form.email.label }} {{ form.email }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label }} {{ form.password }}
+            </div>
+            <div class="form-group">
+                {{ form.user_type.label }} {{ form.user_type }}
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Submit">
+            </div>
+        </form>
+    </div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='/loginpage.css') }}">
+    {% include "footer.html" %}
