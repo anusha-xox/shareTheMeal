@@ -64,6 +64,7 @@ class FoodReqTab(db.Model):
     delivery_date = db.Column(db.String(100))
     food_type = db.Column(db.String(100))
     restaurant_id = db.Column(db.String(100))
+    kgs_of_food= db.Column(db.String(100))
 
 
 @login_manager.user_loader
@@ -109,6 +110,7 @@ def register():
         return redirect(url_for('home'))
     return render_template('register.html', form=form)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -132,7 +134,7 @@ def login():
                 if usertype == "ngo":
                     for ngo in NGOReg.query.all():
                         if user.email == ngo.email:
-                            return redirect(url_for("ngo_dashboard"))
+                            return redirect(url_for("ngo_dashboard", ngo_id=ngo.id))
                 else:
                     for res in RestaurantReg.query.all():
                         if user.email == res.email:
@@ -142,7 +144,10 @@ def login():
 
 @app.route("/ngo_dashboard")
 def ngo_dashboard():
-    return render_template("ngo_dashboard.html")
+    ngo_id = int(request.args.get("ngo_id"))
+    ngo = NGOReg.query.get(ngo_id)
+    return render_template("ngo_dashboard.html", ngo=ngo)
+
 
 @app.route("/restaurant_dashboard")
 def restaurant_dashboard():

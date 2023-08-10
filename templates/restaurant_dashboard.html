@@ -1,51 +1,59 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 {% include "header.html" %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Restaurant Profile</title>
-    <style>
-        .box {
-            border: 1px solid black;
-            padding: 20px;
-            margin: 20px auto;
-            text-align: center;
-            width: 60%;
-        }
-        
-        .box h3 {
-            margin-bottom: 10px;
-        }
-        
-        .box button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .box button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <div style="text-align: right;">
-        <button>Restaurant Profile</button>
-    </div>
-    
+	<div id="fh5co-portfolio">
+		<div class="container">
+			<div class="row animate-box">
+				<div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
+					<h2>Hello! </h2>
+					<p>Thank you for being a part of ShareTheMeal. Every little donation of yours makes a big difference!</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-4">
+					<div class="fh5co-portfolio animate-box">
+						<a href="#">
+						 <div class="portfolio-entry" style="background-image: url(images/portfolio-1.jpg);"></div>
+							<div class="portfolio-text">
+								<h3>View and edit profile.</h3>
+							</div>
+						</a>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="fh5co-portfolio animate-box">
+						<a href="#">
+							<div class="portfolio-entry" style="background-image: url(images/portfolio-2.jpg);"></div>
+							<div class="portfolio-text">
+								<h3>Add food details.</h3>
+								
+							</div>
+						</a>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="fh5co-portfolio animate-box">
+						<a href="#">
+							<div class="portfolio-entry" style="background-image: url(images/portfolio-3.jpg);"></div>
+							<div class="portfolio-text">
+								<h3>View NGOs</h3>
+								
+							</div>
+						</a>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="fh5co-portfolio animate-box">
+						<a href="#">
+							<div class="portfolio-entry" style="background-image: url(images/portfolio-5.jpg);"></div>
+							<div class="portfolio-text">
+								<h3>Messages</h3>
+								
+							</div>
+						</a>
+					</div>
+				</div>
+		</div>
+	</div>
 
-    
-    <div class="box">
-        <h3>Hello! <br><br><br>Thank you for being a part of ShareTheMeal. Every little or big donation you make matters!</h3>
-            <h4><br>Click below to enter the details of the food you're willing to donate.</h4>
-        <button>ADD DETAILS</button>
-    </div>
-    
-</body>
-</html>
-<link rel="stylesheet" href="{{ url_for('static', filename='res_dashboard.css') }}">
-
-{% include "footer.html" %}
+    {% include "footer.html" %}
