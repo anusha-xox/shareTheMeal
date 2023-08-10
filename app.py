@@ -314,35 +314,45 @@ def train_model():
     y_test_hotel_2 = weekly_data_hotel_2.iloc[-25:]['Wastage Food Amount']
     
     model_hotel_1 = ARIMA(train_ds_hotel_1['Wastage Food Amount'],order = (1,0,3))
+    model_hotel_2 = ARIMA(train_ds_hotel_2['Wastage Food Amount'],order = (0,0,1))
     arima_model_1 = model_hotel_1.fit()
-    return arima_model_1
+    arima_model_2 = model_hotel_2.fit()
+    return arima_model_1,arima_model_2
 
 @app.route('/train_arima', methods=['GET', 'POST'])
 def train_arima():
-    global arima_model_1
+    global arima_model_1, arima_model_2
     if(request.method == 'GET'):
-        arima_model_1 = train_model()
+        arima_model_1, arima_model_2 = train_model()
     else:
         return jsonify({'message': 'ARIMA model already trained'})
 
-arima_model_1 = train_model()
+arima_model_1, arima_model_2 = train_model()
 
 @app.route('/predict_wastage_food',methods = ['POST'])
 def predict_wastage_food():
-    global arima_model_1
-
+    global arima_model_1, arima_model_2
+    choice = request.form['selected_hotel']
     start_date = datetime.strptime(request.form['date_start_input'], '%Y-%m-%d').date()
     end_date = datetime.strptime(request.form['date_end_input'], '%Y-%m-%d').date()
     print(start_date)
     # Create a pandas Series with the input date as the index
     index_future_dates = pd.date_range(start = start_date, end = end_date)
     # Predict using the ARIMA model
-    if arima_model_1:
-        prediction = arima_model_1.predict(start=start_date, end=end_date).rename('Wastage Food Amount Predictions')
-        json_prediction = prediction.to_json(orient='records')
-        return jsonify({'predictions' : json_prediction})
+    if arima_model_1 and choice == 'Hotel-1':
+        prediction_hotel_1 = arima_model_1.predict(start=start_date, end=end_date).rename('Wastage Food Amount Predictions')
+        json_prediction_hotel_1 = prediction_hotel_1.to_json(orient='records')
+        return jsonify({'prediction_hotel_1' : json_prediction_hotel_1})
+    
+    elif arima_model_2 and choice == 'Hotel-2':
+        prediction_hotel_2 = arima_model_2.predict(start=start_date, end=end_date).rename('Wastage Food Amount Predictions')
+        json_prediction_hotel_2 = prediction_hotel_2.to_json(orient='records')
+        return jsonify({'prediction_hotel_2' : json_prediction_hotel_2})
+    
     else:
-        return jsonify({'error' : 'ARIMA model not trained'})
+        return jsonify({'message': 'Please choose an appropriate option'})
+    
+    
     
 @app.route('/run_streamlit')
 def run_streamlit():
@@ -600,6 +610,7 @@ def choose_restaurant(request_id, restaurant_id):
     request.restaurant_id = restaurant_id
     db.session.commit()
     return redirect(url_for('home'))
+
 
 
 if __name__ == '__main__':
