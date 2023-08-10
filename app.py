@@ -14,6 +14,7 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from flask_ckeditor import CKEditor, CKEditorField
 from form_data import *
 from werkzeug.security import check_password_hash
+import itertools
 
 app = Flask(__name__, static_folder='static')
 
@@ -146,7 +147,17 @@ def login():
 def ngo_dashboard():
     ngo_id = int(request.args.get("ngo_id"))
     ngo = NGOReg.query.get(ngo_id)
-    return render_template("ngo_dashboard.html", ngo=ngo)
+    ngo_functionalities = ["View/Edit Profile", "Recent Food Availabilities", "View Restaurants Nearby", "Messages"]
+    ngo_functionalities_url = ["", "", "", ""]
+    ngo_functionalities_pictures = ["", "", "", ""]
+    dashboard_details = []
+    for (a, b, c) in zip(ngo_functionalities, ngo_functionalities_url, ngo_functionalities_pictures):
+        dashboard_details.append([a, b, c])
+    return render_template(
+        "ngo_dashboard.html",
+        ngo=ngo,
+        dashboard_details=dashboard_details
+    )
 
 
 @app.route("/restaurant_dashboard")
