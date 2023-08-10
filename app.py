@@ -81,6 +81,75 @@ def home():
     return render_template("about.html")
 
 
+@app.route('/login-buttons')
+def loginnew():
+    return render_template('login-register-buttons.html', title='Login')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        phone_number = form.phone_number.data
+        city = form.city.data
+        district = form.district.data
+        email = form.email.data
+        password = generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=8)
+        user_type = form.user_type.data
+        if user_type == 'ngo':
+            ngo = NGOReg(ngo_name=name, phone_number=phone_number, city=city, district=district, email=email,
+                         password=password)
+            db.session.add(ngo)
+            db.session.commit()
+        elif user_type == 'restaurant':
+            restaurant = RestaurantReg(res_name=name, phone_number=phone_number, city=city, district=district,
+                                       email=email, password=password)
+            db.session.add(restaurant)
+            db.session.commit()
+        return redirect(url_for('home'))
+    return render_template('register.html', form=form)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
+        usertype = form.user_type.data
+        if usertype == "ngo":
+            user = NGOReg.query.filter_by(email=email).first()
+        else:
+            user = RestaurantReg.query.filter_by(email=email).first()
+        if not user:
+            flash("That email does not exist, please try again.")
+            return redirect(url_for('login'))
+        elif not check_password_hash(user.password, password):
+            flash('Password incorrect, please try again.')
+            return redirect(url_for('login'))
+        else:
+            if check_password_hash(user.password, password):
+                # login_user(user)
+                if usertype == "ngo":
+                    for ngo in NGOReg.query.all():
+                        if user.email == ngo.email:
+                            return redirect(url_for("ngo_dashboard"))
+                else:
+                    for res in RestaurantReg.query.all():
+                        if user.email == res.email:
+                            return redirect(url_for("restaurant_dashboard"))
+    return render_template('login.html', form=form, title_given="Login")
+
+
+@app.route("/ngo_dashboard")
+def ngo_dashboard():
+    return render_template("ngo_dashboard.html")
+
+@app.route("/restaurant_dashboard")
+def restaurant_dashboard():
+    return render_template("restaurant_dashboard.html")
+
+
 @app.route('/ngo_form', methods=['GET', 'POST'])
 def ngo_form():
     form = NGOForm()
@@ -119,14 +188,11 @@ def restaurant_form():
         restaurant_name = request.form['restaurant_name']
         location = request.form['location']
         food_type = request.form['food_type']
-
         # Store the data in session for later retrieval
         session['restaurant_name'] = restaurant_name
         session['location'] = location
         session['food_type'] = food_type
-
         return redirect(url_for('restaurant_profile'))
-
     return render_template('restaurant_form.html')
 
 
@@ -135,7 +201,6 @@ def restaurant_profile():
     restaurant_name = session.get('restaurant_name')
     location = session.get('location')
     food_type = session.get('food_type')
-
     return render_template('restaurant_profile.html', restaurant_name=restaurant_name, location=location,
                            food_type=food_type)
 
@@ -156,13 +221,10 @@ def create_request():
         people_to_feed = request.form['people_to_feed']
         date = request.form['date']
         food_type = request.form['food_type']
-
         new_request = FoodRequest(people_to_feed=people_to_feed, date=date, food_type=food_type)
         db.session.add(new_request)
         db.session.commit()
-
         return redirect(url_for('home'))
-
     return render_template('create_request.html')
 
 
@@ -171,7 +233,6 @@ def offer_help(request_id):
     request = FoodRequest.query.get(request_id)
     request.restaurant_id = 1  # Assuming the restaurant ID is 1 for demonstration purposes
     db.session.commit()
-
     return redirect(url_for('home'))
 
 
@@ -180,64 +241,7 @@ def choose_restaurant(request_id, restaurant_id):
     request = FoodRequest.query.get(request_id)
     request.restaurant_id = restaurant_id
     db.session.commit()
-
     return redirect(url_for('home'))
-
-
-@app.route('/login')
-def loginnew():
-    return render_template('login-register-buttons.html', title='Login')
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        email = form.email.data
-        password = form.password.data
-        user_type = form.user_type.data
-
-        if user_type == 'ngo':
-            user = NGOregistration.query.filter_by(email=email).first()
-        elif user_type == 'restaurant':
-            user = Restaurantregistration.query.filter_by(email=email).first()
-
-        if user and check_password_hash(user.password, password):
-            # User is authenticated, perform login
-            return 'Login Successful'
-
-        # Invalid credentials
-        return 'Invalid email or password'
-
-    return render_template('login.html', form=form)
-
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        name = form.name.data
-        phone_number = form.phone_number.data
-        city = form.city.data
-        district = form.district.data
-        email = form.email.data
-        password = form.password.data
-        user_type = form.user_type.data
-
-        if user_type == 'ngo':
-            ngo = NGOregistration(name=name, phone_number=phone_number, city=city, district=district, email=email,
-                                  password=password)
-            db.session.add(ngo)
-            db.session.commit()
-        elif user_type == 'restaurant':
-            restaurant = Restaurantregistration(name=name, phone_number=phone_number, city=city, district=district,
-                                                email=email, password=password)
-            db.session.add(restaurant)
-            db.session.commit()
-
-        return 'Registration Successful'
-
-    return render_template('registerpage.html', form=form)
 
 
 if __name__ == '__main__':
