@@ -24,7 +24,7 @@ selected_hotel = st.selectbox("Select Hotel:", ["Hotel-1", "Hotel-2"])
 # print(type(start_date))
 
 
-predicted_wastage = {
+predicted_wastage_hotel_1 = {
     'Monday': 228.5883,
     'Tuesday': 228.8125,
     'Wednesday': 219.6875,
@@ -33,6 +33,8 @@ predicted_wastage = {
     'Saturday': 210.375,
     'Sunday': 243.7647
 }
+
+predicted_wastage_hotel_2 = {'Monday': 205.2778, 'Tuesday': 190.1112, 'Wednesday': 223.7223, 'Thursday': 195.7223, 'Friday': 202.9445, 'Saturday': 199.6112, 'Sunday': 191.6316}
 
 
 
@@ -47,7 +49,7 @@ if start_date and end_date:
                 pred_list = ast.literal_eval(predictions)
                 op_df = pd.DataFrame({'Date' : pd.date_range(start = start_date, end = end_date),'ARIMA_Predictions' : pred_list})
                 op_df.set_index('Date', inplace=True)
-                op_df['OLS_Regression_Result'] = op_df.index.day_name().map(predicted_wastage)
+                op_df['OLS_Regression_Result'] = op_df.index.day_name().map(predicted_wastage_hotel_1)
                 op_df.index = op_df.index.strftime('%Y-%m-%d')
                 st.write(op_df)
             elif selected_hotel == "Hotel-2":
@@ -55,7 +57,7 @@ if start_date and end_date:
                 pred_list = ast.literal_eval(predictions)
                 op_df = pd.DataFrame({'Date' : pd.date_range(start = start_date, end = end_date),'ARIMA_Predictions' : pred_list})
                 op_df.set_index('Date', inplace=True)
-                op_df['OLS_Regression_Result'] = op_df.index.day_name().map(predicted_wastage)
+                op_df['OLS_Regression_Result'] = op_df.index.day_name().map(predicted_wastage_hotel_2)
                 op_df.index = op_df.index.strftime('%Y-%m-%d')
                 st.write(op_df)
         else:
