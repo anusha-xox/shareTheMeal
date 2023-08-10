@@ -1,15 +1,14 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 {% include "header.html" %}
 
-<div class="containernew">
 
-    <form>
+    <div style="margin-left: 200px; margin-right: 200px; margin-top: 100px;" >
          <h2>Compose a message</h2>
         {{ ckeditor.load() }}
 		{{ ckeditor.config(name='body') }}
-        <p> {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "btn btn-primary text-uppercase"}) }}</p>
-    </form>
-</div>
+        <p> {{ wtf.quick_form(form, button_map={"submit": "btn btn-primary"}) }}</p>
+    </div>
+
 
 
 {% include "footer.html" %}

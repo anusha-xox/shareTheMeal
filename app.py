@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, send_file, session
+from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, send_file, session, \
+    jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 import datetime
@@ -15,6 +16,23 @@ from form_data import *
 from werkzeug.security import check_password_hash
 import itertools
 
+import streamlit.components.v1 as components
+import requests
+import subprocess
+
+
+import streamlit as st
+import requests
+import pandas as pd
+import numpy as np
+
+from statsmodels.tsa.arima.model import ARIMA
+
+from datetime import datetime
+
+from pmdarima import auto_arima
+
+STREAMLIT_APP_URL = "http://127.0.0.1:5000/"
 app = Flask(__name__, static_folder='static')
 
 app.config['SECRET_KEY'] = 'any-secret-key-you-choose'
@@ -69,9 +87,9 @@ class FoodReqTab(db.Model):
 
 class Messages(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    subject = db.Column(db.String(250), unique=True, nullable=False)
+    subject = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(250), nullable=False)
-    body = db.Column(db.Text, nullable=False)
+    body = db.Column(db.String(250), nullable=False)
     author_email = db.Column(db.String(250), nullable=False)
     receiver_email = db.Column(db.String(250), nullable=False)
 
@@ -155,59 +173,77 @@ def login():
 def ngo_dashboard():
     ngo_id = int(request.args.get("ngo_id"))
     ngo = NGOReg.query.get(ngo_id)
-    ngo_functionalities = ["View/Edit Profile", "Recent Food Availabilities", "View Restaurants Nearby", "View Messages", "Compose Message"]
-    ngo_functionalities_url = ["", "", "", "", url_for("compose", author_id=ngo_id, author_type="ngo")]
-    ngo_functionalities_pictures = [
-        "https://previews.123rf.com/images/microbagrandioza/microbagrandioza1906/microbagrandioza190600055/125932546"
-        "-edit-photo-and-information-personal-internet-online-profile-computer-network-concept-vector-flat.jpg",
-        "https://modernrestaurantmanagement.com/assets/media/2022/03/Shutterstock_707207614-1200x655.jpg",
-        "https://img.freepik.com/premium-vector/cafe-with-tables-umbrellas-with-sea-views-street_136277-690.jpg",
-        "https://static.vecteezy.com/system/resources/previews/000/963/033/original/cartoon-business-man-sending"
-        "-messages-vector.jpg",
-        ""
-    ]
-    dashboard_details = []
-    for (a, b, c) in zip(ngo_functionalities, ngo_functionalities_url, ngo_functionalities_pictures):
-        dashboard_details.append([a, b, c])
-    return render_template(
-        "ngo_dashboard.html",
-        ngo=ngo,
-        dashboard_details=dashboard_details
-    )
+    author_email = ngo.email
+    if ngo_id is None:
+        return "ID not found"
+    else:
+        ngo = NGOReg.query.get(ngo_id)
+        ngo_functionalities = ["View/Edit Profile", "Recent Food Availabilities", "View Restaurants Nearby",
+                               "View Messages", "Compose Message"]
+        ngo_functionalities_url = [
+            "",
+            "",
+            "",
+            url_for("view_messages", receiver_email=author_email, receiver_type="ngo", receiver_id=ngo_id),
+            url_for("compose", author_email=author_email, author_type="ngo", author_id=ngo_id)]
+        ngo_functionalities_pictures = [
+            "https://previews.123rf.com/images/microbagrandioza/microbagrandioza1906/microbagrandioza190600055/125932546"
+            "-edit-photo-and-information-personal-internet-online-profile-computer-network-concept-vector-flat.jpg",
+            "https://modernrestaurantmanagement.com/assets/media/2022/03/Shutterstock_707207614-1200x655.jpg",
+            "https://img.freepik.com/premium-vector/cafe-with-tables-umbrellas-with-sea-views-street_136277-690.jpg",
+            "https://static.vecteezy.com/system/resources/previews/000/963/033/original/cartoon-business-man-sending"
+            "-messages-vector.jpg",
+            ""
+        ]
+        dashboard_details = []
+        for (a, b, c) in zip(ngo_functionalities, ngo_functionalities_url, ngo_functionalities_pictures):
+            dashboard_details.append([a, b, c])
+        return render_template(
+            "ngo_dashboard.html",
+            ngo=ngo,
+            dashboard_details=dashboard_details
+        )
+
+
+@app.route("/compose", methods=["GET", "POST"])
+def compose():
+    form = MessageForm()
+    if form.validate_on_submit():
+        subject = form.subject.data
+        date = datetime.datetime.now()
+        body = form.body.data
+        author_email = request.args.get("author_email")
+        receiver_email = form.receiver_email.data
+        new_message = Messages(subject=subject, date=date, body=body, author_email=author_email,
+                               receiver_email=receiver_email)
+        db.session.add(new_message)
+        db.session.commit()
+        if request.args.get("author_type") == "ngo":
+            return redirect(url_for('ngo_dashboard', ngo_id=request.args.get("author_id")))
+        else:
+            return redirect(url_for('restaurant_dashboard'))
+    return render_template("compose.html", form=form)
+
+
+@app.route("/view-messages")
+def view_messages():
+    receiver_id = int(request.args.get("receiver_id"))
+    if request.args.get("receiver_type") == "ngo":
+        receiver = NGOReg.query.get(receiver_id)
+    else:
+        receiver = RestaurantReg.query.get(receiver_id)
+    if receiver:
+        receiver_email = receiver.email
+        sent_messages = Messages.query.filter_by(author_email=receiver_email).all()
+        received_messages = Messages.query.filter_by(receiver_email=receiver_email).all()
+        display_messages = sent_messages + received_messages
+        return render_template("view_messages.html", messages=display_messages)
+    return redirect(url_for("home"))
 
 
 @app.route("/restaurant_dashboard")
 def restaurant_dashboard():
     return render_template("restaurant_dashboard.html")
-
-
-@app.route("/compose", methods=["GET", "POST"])
-def compose():
-    author_type = request.args.get("author_type")
-    author_id = request.args.get("author_id")
-    if author_type == "ngo":
-        user = NGOReg.query.filter_by(id=author_id).first()
-    else:
-        user = RestaurantReg.query.filter_by(id=author_id).first()
-    form = MessageForm(
-        author_email=user.email,
-        date=datetime.datetime.now(),
-    )
-    if form.validate_on_submit():
-        new_message = Messages(
-            subject=form.subject.data,
-            date=form.date.data,
-            body=form.body.data,
-            author_email=form.author_email.data,
-            receiver_email=form.receiver_email.data
-        )
-        db.session.add(new_message)
-        db.session.commit()
-        if author_type == "ngo":
-            return redirect(url_for("ngo_dashboard", ngo_id=author_id))
-        else:
-            return redirect(url_for("restaurant_dashboard"))
-    return render_template("compose.html", form=form)
 
 
 @app.route('/ngo_form', methods=['GET', 'POST'])
@@ -302,6 +338,88 @@ def choose_restaurant(request_id, restaurant_id):
     request.restaurant_id = restaurant_id
     db.session.commit()
     return redirect(url_for('home'))
+
+
+def train_model():
+    global arima_model_1
+    # Assuming you have already trained your ARIMA model and named it 'arima_model'
+    df_new = pd.read_csv('updated_food_data.csv', parse_dates=['Date'])
+    df_new['Date'] = pd.to_datetime(df_new['Date'])
+    df_new.set_index('Date', inplace=True)
+    df_new_hotel_1 = df_new[df_new['Hotel'] == 'hotel-1']
+    df_new_hotel_2 = df_new[df_new['Hotel'] == 'hotel-2']
+
+    weekly_data_hotel_1 = df_new_hotel_1.groupby(['Date']).sum()
+    weekly_data_hotel_2 = df_new_hotel_2.groupby(['Date']).sum()
+
+    weekly_data_hotel_1 = pd.DataFrame({'Wastage Food Amount': weekly_data_hotel_1['Wastage Food Amount'],
+                                        'Day of Week': weekly_data_hotel_1.index.day_name()})
+    weekly_data_hotel_2 = pd.DataFrame({'Wastage Food Amount': weekly_data_hotel_2['Wastage Food Amount'],
+                                        'Day of Week': weekly_data_hotel_2.index.day_name()})
+
+    weekly_data_hotel_1_ts = weekly_data_hotel_1.drop(['Day of Week'], axis=1)
+    weekly_data_hotel_2_ts = weekly_data_hotel_2.drop(['Day of Week'], axis=1)
+
+    train_ds_hotel_1 = weekly_data_hotel_1_ts.iloc[:-25]
+    test_ds_hotel_1 = weekly_data_hotel_1_ts.iloc[-25:]
+    train_ds_hotel_2 = weekly_data_hotel_2_ts.iloc[:-25]
+    test_ds_hotel_2 = weekly_data_hotel_2_ts.iloc[-25:]
+    y_train_hotel_1 = weekly_data_hotel_1.iloc[:-25]['Wastage Food Amount']
+    y_test_hotel_1 = weekly_data_hotel_1.iloc[-25:]['Wastage Food Amount']
+    y_train_hotel_2 = weekly_data_hotel_2.iloc[:-25]['Wastage Food Amount']
+    y_test_hotel_2 = weekly_data_hotel_2.iloc[-25:]['Wastage Food Amount']
+
+    model_hotel_1 = ARIMA(train_ds_hotel_1['Wastage Food Amount'], order=(1, 0, 3))
+    model_hotel_2 = ARIMA(train_ds_hotel_2['Wastage Food Amount'], order=(0, 0, 1))
+    arima_model_1 = model_hotel_1.fit()
+    arima_model_2 = model_hotel_2.fit()
+    return arima_model_1, arima_model_2
+
+
+@app.route('/train_arima', methods=['GET', 'POST'])
+def train_arima():
+    global arima_model_1, arima_model_2
+    if request.method == 'GET':
+        arima_model_1, arima_model_2 = train_model()
+    else:
+        return jsonify({'message': 'ARIMA model already trained'})
+
+
+arima_model_1, arima_model_2 = train_model()
+
+
+@app.route('/predict_wastage_food', methods=['POST'])
+def predict_wastage_food():
+    global arima_model_1, arima_model_2
+    choice = request.form['selected_hotel']
+    start_date = datetime.strptime(request.form['date_start_input'], '%Y-%m-%d').date()
+    end_date = datetime.strptime(request.form['date_end_input'], '%Y-%m-%d').date()
+    print(start_date)
+    # Create a pandas Series with the input date as the index
+    index_future_dates = pd.date_range(start=start_date, end=end_date)
+    # Predict using the ARIMA model
+    if arima_model_1 and choice == 'Hotel-1':
+        prediction_hotel_1 = arima_model_1.predict(start=start_date, end=end_date).rename(
+            'Wastage Food Amount Predictions')
+        json_prediction_hotel_1 = prediction_hotel_1.to_json(orient='records')
+        return jsonify({'prediction_hotel_1': json_prediction_hotel_1})
+
+    elif arima_model_2 and choice == 'Hotel-2':
+        prediction_hotel_2 = arima_model_2.predict(start=start_date, end=end_date).rename(
+            'Wastage Food Amount Predictions')
+        json_prediction_hotel_2 = prediction_hotel_2.to_json(orient='records')
+        return jsonify({'prediction_hotel_2': json_prediction_hotel_2})
+
+    else:
+        return jsonify({'message': 'Please choose an appropriate option'})
+
+
+@app.route('/run_streamlit')
+def run_streamlit():
+    # Start the Streamlit app using subprocess
+    streamlit_script_path = 'streamlit_app.py'
+    subprocess.Popen(['streamlit', 'run', streamlit_script_path])
+    return render_template('streamlit.html')
 
 
 if __name__ == '__main__':

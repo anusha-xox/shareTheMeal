@@ -1,0 +1,20 @@
+{% import 'bootstrap/wtf.html' as wtf %}
+{% include "header.html" %}
+<link rel="stylesheet" href="{{ url_for('static', filename='form_styles.css') }}">
+
+<div class="form-box">
+    <h2>Add Food Details</h2>
+    <form method="POST">
+        {{ wtf.quick_form(form) }}
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-success" role="alert">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+</div>
+
+{% include "footer.html" %}

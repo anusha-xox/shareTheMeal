@@ -1,0 +1,27 @@
+{% import 'bootstrap/wtf.html' as wtf %}
+{% include "header.html" %}
+
+<style>
+    .message-box {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<div style="margin-left: 200px; margin-right: 200px; margin-top: 100px;">
+{% for m in messages: %}
+     <div class="message-box">
+            <p>
+                {{m.subject}} - {{m.author_email}} - {{m.receiver_email}}<br>
+                {{m.date}}<br>
+                {{m.body|safe}}<br>
+          </p>
+     </div>
+        <hr>
+{% endfor %}
+    </div>
+
+{% include "footer.html" %}

@@ -38,8 +38,15 @@ class NGOForm(FlaskForm):
 
 class MessageForm(FlaskForm):
     subject = StringField("Subject", validators=[DataRequired()])
-    date = StringField(label='Date and Time', validators=[DataRequired()], render_kw={'readonly': True})
-    body = CKEditorField("Message Content", validators=[DataRequired()])
-    author_email = StringField(label='Email', validators=[DataRequired(), Email()], render_kw={'readonly': True})
+    body = CKEditorField(label="Message Content", validators=[DataRequired()])
     receiver_email = StringField(label='Sent To', validators=[DataRequired(), Email()])
     submit = SubmitField(label='Send Message')
+
+
+class FoodDetailsForm(FlaskForm):
+    no_of_people = StringField('Number of People', validators=[DataRequired()])
+    delivery_date = StringField('Delivery Date', validators=[DataRequired()])
+    food_type = SelectField('Food Type', choices=[('veg', 'Veg'), ('nonveg', 'Non-Veg'), ('both', 'Both')],
+                            validators=[DataRequired()])
+    kgs_of_food = StringField('Kgs of Food', validators=[DataRequired()])
+    submit = SubmitField('Submit')
