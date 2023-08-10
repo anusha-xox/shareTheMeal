@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 import os
+from flask_ckeditor import CKEditor
 from flask_wtf import FlaskForm
 from wtforms import StringField, FileField, IntegerField, TextAreaField, SubmitField, PasswordField, SelectField
 from wtforms.validators import DataRequired, URL, Email, Length
@@ -11,7 +12,6 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 import email_validator
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from flask_ckeditor import CKEditor, CKEditorField
 from form_data import *
 from werkzeug.security import check_password_hash
 import itertools
@@ -66,6 +66,15 @@ class FoodReqTab(db.Model):
     food_type = db.Column(db.String(100))
     restaurant_id = db.Column(db.String(100))
     kgs_of_food= db.Column(db.String(100))
+
+
+class Messages(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.String(250), unique=True, nullable=False)
+    date = db.Column(db.String(250), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    author_email = db.Column(db.String(250), nullable=False)
+    receiver_email = db.Column(db.String(250), nullable=False)
 
 
 @login_manager.user_loader
@@ -147,15 +156,17 @@ def login():
 def ngo_dashboard():
     ngo_id = int(request.args.get("ngo_id"))
     ngo = NGOReg.query.get(ngo_id)
-    ngo_functionalities = ["View/Edit Profile", "Recent Food Availabilities", "View Restaurants Nearby", "Messages"]
-    ngo_functionalities_url = ["", "", "", ""]
+    ngo_functionalities = ["View/Edit Profile", "Recent Food Availabilities", "View Restaurants Nearby", "View Messages", "Compose Message"]
+    ngo_functionalities_url = ["", "", "", "", url_for("compose", author_id=ngo_id, author_type="ngo")]
     ngo_functionalities_pictures = [
         "https://previews.123rf.com/images/microbagrandioza/microbagrandioza1906/microbagrandioza190600055/125932546"
         "-edit-photo-and-information-personal-internet-online-profile-computer-network-concept-vector-flat.jpg",
         "https://modernrestaurantmanagement.com/assets/media/2022/03/Shutterstock_707207614-1200x655.jpg",
         "https://img.freepik.com/premium-vector/cafe-with-tables-umbrellas-with-sea-views-street_136277-690.jpg",
         "https://static.vecteezy.com/system/resources/previews/000/963/033/original/cartoon-business-man-sending"
-        "-messages-vector.jpg"]
+        "-messages-vector.jpg",
+        ""
+    ]
     dashboard_details = []
     for (a, b, c) in zip(ngo_functionalities, ngo_functionalities_url, ngo_functionalities_pictures):
         dashboard_details.append([a, b, c])
@@ -169,6 +180,35 @@ def ngo_dashboard():
 @app.route("/restaurant_dashboard")
 def restaurant_dashboard():
     return render_template("restaurant_dashboard.html")
+
+
+@app.route("/compose", methods=["GET", "POST"])
+def compose():
+    author_type = request.args.get("author_type")
+    author_id = request.args.get("author_id")
+    if author_type == "ngo":
+        user = NGOReg.query.filter_by(id=author_id).first()
+    else:
+        user = RestaurantReg.query.filter_by(id=author_id).first()
+    form = MessageForm(
+        author_email=user.email,
+        date=datetime.datetime.now(),
+    )
+    if form.validate_on_submit():
+        new_message = Messages(
+            subject=form.subject.data,
+            date=form.date.data,
+            body=form.body.data,
+            author_email=form.author_email.data,
+            receiver_email=form.receiver_email.data
+        )
+        db.session.add(new_message)
+        db.session.commit()
+        if author_type == "ngo":
+            return redirect(url_for("ngo_dashboard", ngo_id=author_id))
+        else:
+            return redirect(url_for("restaurant_dashboard"))
+    return render_template("compose.html", form=form)
 
 
 @app.route('/ngo_form', methods=['GET', 'POST'])
@@ -217,13 +257,13 @@ def restaurant_form():
     return render_template('restaurant_form.html')
 
 
-@app.route('/profile')
-def restaurant_profile():
-    restaurant_name = session.get('restaurant_name')
-    location = session.get('location')
-    food_type = session.get('food_type')
-    return render_template('restaurant_profile.html', restaurant_name=restaurant_name, location=location,
-                           food_type=food_type)
+# @app.route('/profile')
+# def restaurant_profile():
+#     restaurant_name = session.get('restaurant_name')
+#     location = session.get('location')
+#     food_type = session.get('food_type')
+#     return render_template('restaurant_profile.html', restaurant_name=restaurant_name, location=location,
+#                            food_type=food_type) 
 
 
 @app.route('/postrequestindex')
@@ -289,11 +329,6 @@ def res_food_details():
 def restaurant_profile():
     restaurants = RestaurantReg.query.all()
     return render_template('restaurant_profile.html', restaurants=restaurants)
-
-
-
-
-
 
 
 if __name__ == '__main__':

@@ -2,8 +2,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, IntegerField
 from wtforms.validators import DataRequired, Email, Length, URL
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms.fields import DateField
-
 
 REG_CATEGORY = ["ngo", "restaurant"]
 
@@ -38,7 +36,7 @@ class NGOForm(FlaskForm):
 
 class FoodDetailsForm(FlaskForm):
     no_of_people = StringField('Number of People', validators=[DataRequired()])
-    delivery_date = DateField('Delivery Date', format="%Y-%m-%d",validators=[DataRequired()])
+    delivery_date = StringField('Delivery Date', validators=[DataRequired()])
     food_type = SelectField('Food Type', choices=[('veg', 'Veg'), ('nonveg', 'Non-Veg'),('both', 'Both')], validators=[DataRequired()])
     kgs_of_food = StringField('Kgs of Food', validators=[DataRequired()])
     submit = SubmitField('Submit')
