@@ -1,5 +1,75 @@
 {% import 'bootstrap/wtf.html' as wtf %}
-{% include "header.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+<!DOCTYPE HTML>
+<html>
+	<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>share the meal. &mdash; Free Website Template, Free HTML5 Template by freehtml5.co</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Free HTML5 Website Template by freehtml5.co" />
+	<meta name="keywords" content="free website templates, free html5, free template, free bootstrap, free website template, html5, css3, mobile first, responsive" />
+	<meta name="author" content="freehtml5.co" />
+
+	<!-- <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,700,800" rel="stylesheet">	 -->
+	<link href="https://fonts.googleapis.com/css?family=Inconsolata:400,700" rel="stylesheet">
+
+	<!-- Animate.css -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/animate.css') }}">
+	<!-- Icomoon Icon Fonts-->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/icomoon.css') }}">
+	<!-- Bootstrap  -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+	<!-- Flexslider  -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/flexslider.css') }}">
+
+	<!-- Theme style  -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+	<!-- Modernizr JS -->
+	<script src="js/modernizr-2.6.2.min.js"></script>
+	<!-- FOR IE9 below -->
+	<!--[if lt IE 9]>
+	<script src="{{ url_for('static', filename='js/respond.min.js') }}"></script>
+	<![endif]-->
+
+	</head>
+	<body>
+
+	<div class="fh5co-loader"></div>
+
+	<div id="page">
+	<nav class="fh5co-nav" role="navigation">
+		<div class="top-menu">
+			<div class="container">
+				<div class="row">
+					<div class="col-xs-2">
+						<div id="fh5co-logo"><a href="index.html">sharethemeal<span>.</span></a></div>
+					</div>
+					<div class="col-xs-10 text-right menu-1">
+						<ul>
+							<!-- <li>Home</li> -->
+							<!--<li><a href="restaurant_dashboard.html">Portfolio</a></li>
+							<li class="has-dropdown">
+								<a href="blog.html">Blog</a>
+								<ul class="dropdown">
+									<li><a href="#">Web Design</a></li>
+									<li><a href="#">eCommerce</a></li>
+									<li><a href="#">Branding</a></li>
+									<li><a href="#">API</a></li>
+								</ul>
+							</li>
+							<li class="active"><a href="about.html">About</a></li>
+							<li><a href="contact.html">Contact</a></li> -->
+							<li class="btn-cta"><a href="login-buttons"><span>Login/Register</span></a></li>
+						</ul>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</nav>
 
 	<div id="fh5co-about">
 		<div class="container">
@@ -36,7 +106,7 @@
 							<div class="feature-copy">
 								<h3>Customized Matchmaking</h3>
 								<p>Matching restaurants and NGOs based on location, food type, and quantity to ensure a tailored and effective food distribution process.</p>
-								<p><a href="#">Learn More <i class="icon-arrow-right22"></i></a></p>
+					
 							</div>
 						</div>
 					</div>
@@ -49,7 +119,7 @@
 							<div class="feature-copy">
 								<h3>Efficient Food Donation</h3>
 								<p>Streamlined process connecting restaurants with excess food to NGOs for efficient and timely food donation.</p>
-								<p><a href="#">Learn More <i class="icon-arrow-right22"></i></a></p>
+						
 							</div>
 						</div>
 
@@ -62,7 +132,7 @@
 							<div class="feature-copy">
 								<h3>Real-Time Updates</h3>
 								<p>Restaurants can provide real-time updates on their surplus food availability, enabling NGOs to access the most up-to-date information.</p>
-								<p><a href="#">Learn More <i class="icon-arrow-right22"></i></a></p>
+								
 							</div>
 						</div>
 					</div>
@@ -79,7 +149,7 @@
 							<div class="feature-copy">
 								<h3>Specific NGO Requests</h3>
 								<p>NGOs can specify their specific food requirements, ensuring they receive the food that aligns with their beneficiaries' needs.</p>
-								<p><a href="#">Learn More <i class="icon-arrow-right22"></i></a></p>
+								
 							</div>
 						</div>
 
@@ -93,7 +163,7 @@
 							<div class="feature-copy">
 								<h3>Predictive Analytics</h3>
 								<p>Integration of machine learning technology to predict food wastage, assisting restaurants in proactive planning and reducing unnecessary surplus.</p>
-								<p><a href="#">Learn More <i class="icon-arrow-right22"></i></a></p>
+							
 							</div>
 						</div>
 
@@ -106,7 +176,7 @@
 							<div class="feature-copy">
 								<h3>Impact Tracking</h3>
 								<p>Monitoring and reporting the positive impact achieved through the collaboration of restaurants and NGOs, promoting transparency and accountability.</p>
-								<p><a href="#">Learn More <i class="icon-arrow-right22"></i></a></p>
+								
 							</div>
 						</div>
 					</div>
@@ -129,7 +199,8 @@
 				<div class="col-md-4">
 					<div class="fh5co-team text-center animate-box">
 						<figure>
-							<img src="{{ url_for('static', filename='static/images/user3.jpeg') }}"alt="user">
+				
+					    <img src="{{ url_for('static', filename='user1.jpeg') }}" alt="user">
 						</figure>
 						<p>Santosh Vishwanathan<br> <span class="text-mute">Developer</span></p>
 
@@ -138,7 +209,8 @@
 				<div class="col-md-4">
 					<div class="fh5co-team text-center animate-box">
 						<figure>
-							<img src="images/user3.jpeg" alt="user">
+						
+							<img src="{{ url_for('static', filename='user2new.jpeg') }}" alt="user">
 						</figure>
 						<p>Riya Kaur<br> <span class="text-mute">Developer</span></p>
 						
@@ -147,7 +219,7 @@
 				<div class="col-md-4">
 					<div class="fh5co-team text-center animate-box">
 						<figure>
-							<img src="images/user3.jpg" alt="user">
+							<img src="{{ url_for('static', filename='user3.jpeg') }}" alt="user">
 						</figure>
 						<p>Anusha Jain <br> <span class="text-mute">Developer</span></p>
 					

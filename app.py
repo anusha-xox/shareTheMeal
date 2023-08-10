@@ -371,6 +371,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 import os
+from flask_ckeditor import CKEditor
 from flask_wtf import FlaskForm
 from wtforms import StringField, FileField, IntegerField, TextAreaField, SubmitField, PasswordField, SelectField
 from wtforms.validators import DataRequired, URL, Email, Length
@@ -379,9 +380,9 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 import email_validator
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from flask_ckeditor import CKEditor, CKEditorField
 from form_data import *
 from werkzeug.security import check_password_hash
+import itertools
 
 app = Flask(__name__, static_folder='static')
 
@@ -431,8 +432,17 @@ class FoodReqTab(db.Model):
     no_of_people = db.Column(db.String(1000))
     delivery_date = db.Column(db.String(100))
     food_type = db.Column(db.String(100))
-    ngo_id = db.Column(db.String(100))
     restaurant_id = db.Column(db.String(100))
+    kgs_of_food= db.Column(db.String(100))
+
+
+class Messages(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.String(250), unique=True, nullable=False)
+    date = db.Column(db.String(250), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    author_email = db.Column(db.String(250), nullable=False)
+    receiver_email = db.Column(db.String(250), nullable=False)
 
 
 @login_manager.user_loader
@@ -478,6 +488,7 @@ def register():
         return redirect(url_for('home'))
     return render_template('register.html', form=form)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -501,7 +512,7 @@ def login():
                 if usertype == "ngo":
                     for ngo in NGOReg.query.all():
                         if user.email == ngo.email:
-                            return redirect(url_for("ngo_dashboard"))
+                            return redirect(url_for("ngo_dashboard", ngo_id=ngo.id))
                 else:
                     for res in RestaurantReg.query.all():
                         if user.email == res.email:
@@ -511,11 +522,61 @@ def login():
 
 @app.route("/ngo_dashboard")
 def ngo_dashboard():
-    return render_template("ngo_dashboard.html")
+    ngo_id = int(request.args.get("ngo_id"))
+    ngo = NGOReg.query.get(ngo_id)
+    ngo_functionalities = ["View/Edit Profile", "Recent Food Availabilities", "View Restaurants Nearby", "View Messages", "Compose Message"]
+    ngo_functionalities_url = ["", "", "", "", url_for("compose", author_id=ngo_id, author_type="ngo")]
+    ngo_functionalities_pictures = [
+        "https://previews.123rf.com/images/microbagrandioza/microbagrandioza1906/microbagrandioza190600055/125932546"
+        "-edit-photo-and-information-personal-internet-online-profile-computer-network-concept-vector-flat.jpg",
+        "https://modernrestaurantmanagement.com/assets/media/2022/03/Shutterstock_707207614-1200x655.jpg",
+        "https://img.freepik.com/premium-vector/cafe-with-tables-umbrellas-with-sea-views-street_136277-690.jpg",
+        "https://static.vecteezy.com/system/resources/previews/000/963/033/original/cartoon-business-man-sending"
+        "-messages-vector.jpg",
+        ""
+    ]
+    dashboard_details = []
+    for (a, b, c) in zip(ngo_functionalities, ngo_functionalities_url, ngo_functionalities_pictures):
+        dashboard_details.append([a, b, c])
+    return render_template(
+        "ngo_dashboard.html",
+        ngo=ngo,
+        dashboard_details=dashboard_details
+    )
+
 
 @app.route("/restaurant_dashboard")
 def restaurant_dashboard():
     return render_template("restaurant_dashboard.html")
+
+
+@app.route("/compose", methods=["GET", "POST"])
+def compose():
+    author_type = request.args.get("author_type")
+    author_id = request.args.get("author_id")
+    if author_type == "ngo":
+        user = NGOReg.query.filter_by(id=author_id).first()
+    else:
+        user = RestaurantReg.query.filter_by(id=author_id).first()
+    form = MessageForm(
+        author_email=user.email,
+        date=datetime.datetime.now(),
+    )
+    if form.validate_on_submit():
+        new_message = Messages(
+            subject=form.subject.data,
+            date=form.date.data,
+            body=form.body.data,
+            author_email=form.author_email.data,
+            receiver_email=form.receiver_email.data
+        )
+        db.session.add(new_message)
+        db.session.commit()
+        if author_type == "ngo":
+            return redirect(url_for("ngo_dashboard", ngo_id=author_id))
+        else:
+            return redirect(url_for("restaurant_dashboard"))
+    return render_template("compose.html", form=form)
 
 
 @app.route('/ngo_form', methods=['GET', 'POST'])
@@ -564,13 +625,13 @@ def restaurant_form():
     return render_template('restaurant_form.html')
 
 
-@app.route('/profile')
-def restaurant_profile():
-    restaurant_name = session.get('restaurant_name')
-    location = session.get('location')
-    food_type = session.get('food_type')
-    return render_template('restaurant_profile.html', restaurant_name=restaurant_name, location=location,
-                           food_type=food_type)
+# @app.route('/profile')
+# def restaurant_profile():
+#     restaurant_name = session.get('restaurant_name')
+#     location = session.get('location')
+#     food_type = session.get('food_type')
+#     return render_template('restaurant_profile.html', restaurant_name=restaurant_name, location=location,
+#                            food_type=food_type) 
 
 
 @app.route('/postrequestindex')
@@ -610,6 +671,32 @@ def choose_restaurant(request_id, restaurant_id):
     request.restaurant_id = restaurant_id
     db.session.commit()
     return redirect(url_for('home'))
+
+@app.route("/res_food_details", methods=['GET', 'POST'])
+def res_food_details():
+    form = FoodDetailsForm()
+    if form.validate_on_submit():
+        food_details = FoodReqTab(
+            no_of_people=form.no_of_people.data,
+            delivery_date=form.delivery_date.data,
+            food_type=form.food_type.data,
+            kgs_of_food=form.kgs_of_food.data,
+            restaurant_id=1  # Replace with actual restaurant ID
+        )
+        db.session.add(food_details)
+        db.session.commit()
+
+        flash("Food details submitted successfully!", "success")
+        return redirect(url_for('restaurant_dashboard'))
+
+    return render_template('res_food_details.html', form=form)
+
+
+
+@app.route('/restaurant_profile')
+def restaurant_profile():
+    restaurants = RestaurantReg.query.all()
+    return render_template('restaurant_profile.html', restaurants=restaurants)
 
 
 

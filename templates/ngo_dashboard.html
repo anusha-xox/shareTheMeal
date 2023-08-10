@@ -1,6 +1,35 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 {% include "header.html" %}
 
-<h1>hi you are ngo</h1>
+	<div id="fh5co-portfolio">
+		<div class="container">
+			<div class="row animate-box">
+				<div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
+					<h2>Hello {{ ngo.ngo_name }}</h2>
+					<p>Welcome, valued NGO partner! Let's make a difference!.</p>
+				</div>
+			</div>
 
-{% include "footer.html" %}
+			{% for t in dashboard_details: %}
+			<div class="row">
+				<div class="col-md-4">
+					<div class="fh5co-portfolio animate-box">
+						<a href="{{ t[1] }}">
+							<div class="portfolio-entry" style="background-image: url({{ t[2] }});"></div>
+							<div class="portfolio-text">
+								<h3>{{ t[0] }}</h3>
+								<ul class="stuff">
+<!--									<li><i class="icon-heart2"></i>200</li>-->
+<!--									<li><i class="icon-eye2"></i>248</li>-->
+<!--									<li><i class="icon-download3"></i>240</li>-->
+								</ul>
+							</div>
+						</a>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
+    {% include "footer.html" %}

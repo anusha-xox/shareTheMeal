@@ -33,3 +33,11 @@ class NGOForm(FlaskForm):
     capacity = IntegerField('Capacity', validators=[DataRequired()])
     est_year = IntegerField('Year of Est.', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+class FoodDetailsForm(FlaskForm):
+    no_of_people = StringField('Number of People', validators=[DataRequired()])
+    delivery_date = StringField('Delivery Date', validators=[DataRequired()])
+    food_type = SelectField('Food Type', choices=[('veg', 'Veg'), ('nonveg', 'Non-Veg'),('both', 'Both')], validators=[DataRequired()])
+    kgs_of_food = StringField('Kgs of Food', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
