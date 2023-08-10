@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, IntegerField
 from wtforms.validators import DataRequired, Email, Length, URL
 from flask_wtf.file import FileField, FileRequired, FileAllowed
+from flask_ckeditor import CKEditor, CKEditorField
 
 REG_CATEGORY = ["ngo", "restaurant"]
 
@@ -33,3 +34,12 @@ class NGOForm(FlaskForm):
     capacity = IntegerField('Capacity', validators=[DataRequired()])
     est_year = IntegerField('Year of Est.', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+
+class MessageForm(FlaskForm):
+    subject = StringField("Subject", validators=[DataRequired()])
+    date = StringField(label='Date and Time', validators=[DataRequired()], render_kw={'readonly': True})
+    body = CKEditorField("Message Content", validators=[DataRequired()])
+    author_email = StringField(label='Email', validators=[DataRequired(), Email()], render_kw={'readonly': True})
+    receiver_email = StringField(label='Sent To', validators=[DataRequired(), Email()])
+    submit = SubmitField(label='Send Message')
