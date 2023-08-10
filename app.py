@@ -14,6 +14,7 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from flask_ckeditor import CKEditor, CKEditorField
 from form_data import *
 from werkzeug.security import check_password_hash
+import itertools
 
 app = Flask(__name__, static_folder='static')
 
@@ -146,7 +147,23 @@ def login():
 def ngo_dashboard():
     ngo_id = int(request.args.get("ngo_id"))
     ngo = NGOReg.query.get(ngo_id)
-    return render_template("ngo_dashboard.html", ngo=ngo)
+    ngo_functionalities = ["View/Edit Profile", "Recent Food Availabilities", "View Restaurants Nearby", "Messages"]
+    ngo_functionalities_url = ["", "", "", ""]
+    ngo_functionalities_pictures = [
+        "https://previews.123rf.com/images/microbagrandioza/microbagrandioza1906/microbagrandioza190600055/125932546"
+        "-edit-photo-and-information-personal-internet-online-profile-computer-network-concept-vector-flat.jpg",
+        "https://modernrestaurantmanagement.com/assets/media/2022/03/Shutterstock_707207614-1200x655.jpg",
+        "https://img.freepik.com/premium-vector/cafe-with-tables-umbrellas-with-sea-views-street_136277-690.jpg",
+        "https://static.vecteezy.com/system/resources/previews/000/963/033/original/cartoon-business-man-sending"
+        "-messages-vector.jpg"]
+    dashboard_details = []
+    for (a, b, c) in zip(ngo_functionalities, ngo_functionalities_url, ngo_functionalities_pictures):
+        dashboard_details.append([a, b, c])
+    return render_template(
+        "ngo_dashboard.html",
+        ngo=ngo,
+        dashboard_details=dashboard_details
+    )
 
 
 @app.route("/restaurant_dashboard")
