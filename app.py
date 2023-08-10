@@ -264,6 +264,37 @@ def choose_restaurant(request_id, restaurant_id):
     db.session.commit()
     return redirect(url_for('home'))
 
+@app.route("/res_food_details", methods=['GET', 'POST'])
+def res_food_details():
+    form = FoodDetailsForm()
+    if form.validate_on_submit():
+        food_details = FoodReqTab(
+            no_of_people=form.no_of_people.data,
+            delivery_date=form.delivery_date.data,
+            food_type=form.food_type.data,
+            kgs_of_food=form.kgs_of_food.data,
+            restaurant_id=1  # Replace with actual restaurant ID
+        )
+        db.session.add(food_details)
+        db.session.commit()
+
+        flash("Food details submitted successfully!", "success")
+        return redirect(url_for('restaurant_dashboard'))
+
+    return render_template('res_food_details.html', form=form)
+
+
+
+@app.route('/restaurant_profile')
+def restaurant_profile():
+    restaurants = RestaurantReg.query.all()
+    return render_template('restaurant_profile.html', restaurants=restaurants)
+
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

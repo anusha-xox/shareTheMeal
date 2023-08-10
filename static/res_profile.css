@@ -1,0 +1,39 @@
+res_profile.css
+
+/* Center the content in the middle of the page */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  /* Style the box */
+  .box {
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 10px;
+    width: 60%;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    margin-top: 20px;
+  }
+  
+  /* Style the table */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .table th {
+    background-color: #f7f7f7;
+    font-weight: bold;
+    text-align: left;
+  }
+  

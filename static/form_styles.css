@@ -1,0 +1,28 @@
+/* form_styles.css */
+
+.form-box {
+    border: 1px solid black;
+    padding: 20px;
+    margin: 50px auto;
+    text-align: center;
+    width: 60%;
+}
+
+.form-box h2 {
+    margin-bottom: 20px;
+}
+
+/* Style the submit button */
+.form-box input[type="submit"] {
+    background-color: #dd356e; /* Blue color */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 20px; /* Add rounded corners */
+}
+
+.form-box input[type="submit"]:hover {
+    background-color: #dd356e; /* Darker blue color on hover */
+}
+

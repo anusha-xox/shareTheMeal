@@ -1,17 +1,46 @@
+{% import 'bootstrap/wtf.html' as wtf %}
+{% include "header.html" %}
+
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='restaurant_styles.css') }}">
-
-    <title>Restaurant Profile</title>
-    <style>
-        /* Add your CSS styling here */
-    </style>
+    <title>Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='res_profile.css') }}">
 </head>
 <body>
-    <h1>Restaurant Profile</h1>
-    <p><strong>Restaurant Name:</strong> {{ restaurant_name }}</p>
-    <p><strong>Location:</strong> {{ location }}</p>
-    <p><strong>Food Type:</strong> {{ food_type }}</p>
+    <div class="container">
+        <div class="box" style="
+        margin-left: 300px;
+        margin-bottom: 200px;
+        padding-bottom: 100px;
+    
+    ">
+            <h1>Profile</h1>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Restaurant Name</th>
+                        <th>Phone Number</th>
+                        <th>City</th>
+                        <th>District</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for restaurant in restaurants %}
+                    <tr>
+                        <td>{{ restaurant.res_name }}</td>
+                        <td>{{ restaurant.phone_number }}</td>
+                        <td>{{ restaurant.city }}</td>
+                        <td>{{ restaurant.district }}</td>
+                        <td>{{ restaurant.email }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>
+
+{% include "footer.html" %}
