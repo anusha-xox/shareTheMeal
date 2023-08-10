@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, send_file, session
+from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, send_file, session,jsonify,render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 import datetime
@@ -14,7 +14,23 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from flask_ckeditor import CKEditor, CKEditorField
 from form_data import *
 from werkzeug.security import check_password_hash
+import streamlit.components.v1 as components
+import requests
+import subprocess
 
+
+import streamlit as st
+import requests
+import pandas as pd
+import numpy as np
+
+from statsmodels.tsa.arima.model import ARIMA
+
+from datetime import datetime
+
+from pmdarima import auto_arima
+
+STREAMLIT_APP_URL = "http://127.0.0.1:5000/"
 app = Flask(__name__, static_folder='static')
 
 app.config['SECRET_KEY'] = 'any-secret-key-you-choose'
@@ -32,6 +48,7 @@ bootstrap = Bootstrap(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+global arima_model_1
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -267,8 +284,72 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     user_type = SelectField('User Type', choices=[('ngo', 'NGO'), ('restaurant', 'Restaurant')])
 
+def train_model():
+    global arima_model_1
+    # Assuming you have already trained your ARIMA model and named it 'arima_model'
+    df_new = pd.read_csv('updated_food_data.csv', parse_dates=['Date'])
+    df_new['Date'] = pd.to_datetime(df_new['Date'])
+    df_new.set_index('Date',inplace = True)
+    df_new_hotel_1 = df_new[df_new['Hotel'] == 'hotel-1']
+    df_new_hotel_2 = df_new[df_new['Hotel'] == 'hotel-2']
 
+    weekly_data_hotel_1 = df_new_hotel_1.groupby(['Date']).sum()
+    weekly_data_hotel_2 = df_new_hotel_2.groupby(['Date']).sum()
 
+    weekly_data_hotel_1 = pd.DataFrame({'Wastage Food Amount' : weekly_data_hotel_1['Wastage Food Amount'],
+                                'Day of Week' : weekly_data_hotel_1.index.day_name()})
+    weekly_data_hotel_2 = pd.DataFrame({'Wastage Food Amount' : weekly_data_hotel_2['Wastage Food Amount'],
+                                'Day of Week' : weekly_data_hotel_2.index.day_name()})
+
+    weekly_data_hotel_1_ts = weekly_data_hotel_1.drop(['Day of Week'],axis = 1)
+    weekly_data_hotel_2_ts = weekly_data_hotel_2.drop(['Day of Week'],axis = 1)
+
+    train_ds_hotel_1 = weekly_data_hotel_1_ts.iloc[:-25]
+    test_ds_hotel_1 = weekly_data_hotel_1_ts.iloc[-25:]
+    train_ds_hotel_2 = weekly_data_hotel_2_ts.iloc[:-25]
+    test_ds_hotel_2 = weekly_data_hotel_2_ts.iloc[-25:]
+    y_train_hotel_1 = weekly_data_hotel_1.iloc[:-25]['Wastage Food Amount']
+    y_test_hotel_1 = weekly_data_hotel_1.iloc[-25:]['Wastage Food Amount']
+    y_train_hotel_2 = weekly_data_hotel_2.iloc[:-25]['Wastage Food Amount']
+    y_test_hotel_2 = weekly_data_hotel_2.iloc[-25:]['Wastage Food Amount']
+    
+    model_hotel_1 = ARIMA(train_ds_hotel_1['Wastage Food Amount'],order = (1,0,3))
+    arima_model_1 = model_hotel_1.fit()
+    return arima_model_1
+
+@app.route('/train_arima', methods=['GET', 'POST'])
+def train_arima():
+    global arima_model_1
+    if(request.method == 'GET'):
+        arima_model_1 = train_model()
+    else:
+        return jsonify({'message': 'ARIMA model already trained'})
+
+arima_model_1 = train_model()
+
+@app.route('/predict_wastage_food',methods = ['POST'])
+def predict_wastage_food():
+    global arima_model_1
+
+    start_date = datetime.strptime(request.form['date_start_input'], '%Y-%m-%d').date()
+    end_date = datetime.strptime(request.form['date_end_input'], '%Y-%m-%d').date()
+    print(start_date)
+    # Create a pandas Series with the input date as the index
+    index_future_dates = pd.date_range(start = start_date, end = end_date)
+    # Predict using the ARIMA model
+    if arima_model_1:
+        prediction = arima_model_1.predict(start=start_date, end=end_date).rename('Wastage Food Amount Predictions')
+        json_prediction = prediction.to_json(orient='records')
+        return jsonify({'predictions' : json_prediction})
+    else:
+        return jsonify({'error' : 'ARIMA model not trained'})
+    
+@app.route('/run_streamlit')
+def run_streamlit():
+    # Start the Streamlit app using subprocess
+    streamlit_script_path = 'streamlit_app.py'
+    subprocess.Popen(['streamlit', 'run', streamlit_script_path])
+    return render_template('about.html')
 
 with app.app_context():
     db.create_all()
