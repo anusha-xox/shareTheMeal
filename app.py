@@ -144,7 +144,7 @@ def login():
 
 @app.route("/ngo_dashboard")
 def ngo_dashboard():
-    ngo_id = int(request.args.get("id"))
+    ngo_id = int(request.args.get("ngo_id"))
     ngo = NGOReg.query.get(ngo_id)
     return render_template("ngo_dashboard.html", ngo=ngo)
 
